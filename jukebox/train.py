@@ -9,7 +9,11 @@ import warnings
 import numpy as np
 import torch as t
 import jukebox.utils.dist_adapter as dist
-from torch.nn.parallel import DistributedDataParallel
+
+try:
+    from apex.parallel import DistributedDataParallel
+except ImportError:
+    from torch.nn.parallel import DistributedDataParallel
 
 from jukebox.hparams import setup_hparams
 from jukebox.make_models import make_vqvae, make_prior, restore_opt, save_checkpoint
