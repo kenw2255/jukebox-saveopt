@@ -10,10 +10,12 @@ import numpy as np
 import torch as t
 import jukebox.utils.dist_adapter as dist
 
+apexfound = True
 try:
     from apex.parallel import DistributedDataParallel
 except ImportError:
     from torch.nn.parallel import DistributedDataParallel
+    apexfound = False
 
 from jukebox.hparams import setup_hparams
 from jukebox.make_models import make_vqvae, make_prior, restore_opt, save_checkpoint
@@ -46,7 +48,10 @@ def log_labels(logger, labeller, tag, y, hps):
 def get_ddp(model, hps):
     rank = dist.get_rank()
     local_rank = rank % 8
-    ddp = DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank, broadcast_buffers=False, bucket_cap_mb=hps.bucket)
+    if apexfound == True:
+        ddp = DistributedDataParallel(model, broadcast_buffers=False, bucket_cap_mb=hps.bucket)
+    else:
+        ddp = DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank, broadcast_buffers=False, bucket_cap_mb=hps.bucket)
     return ddp
 
 def get_ema(model, hps):
