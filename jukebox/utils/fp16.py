@@ -30,8 +30,8 @@ def adam_step(p: torch.Tensor, out_p: torch.Tensor, exp_avg: torch.Tensor, exp_a
 
 # Import fused_adam if we have apex, otherwise use regular adam
 try:
-    fused_adam_cuda = importlib.import_module("fused_adam_cuda")
-    fused_adam_step = fused_adam_cuda.adam
+    fused_adam_cuda = importlib.import_module("apex.contrib.optimizers")
+    fused_adam_step = fused_adam_cuda.FusedAdam
     print("Using apex fused_adam_cuda")
 except ModuleNotFoundError:
     fused_adam_step = adam_step
